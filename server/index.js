@@ -7,13 +7,22 @@ require('dotenv').config({ path: path.resolve(process.cwd(), '.env') });
 
 const app = express();
 
-const allowedOrigins = [
-  "https://anikalp-submission.vercel.app/",
-  "http://localhost:3000", 
-];
+const prodOrigins = [process.env.ORIGIN_1]
+const devorigins = ["http://localhost:3000",]
+const allowedOrigins = process.env.NODE_ENV === 'production' ? prodOrigins : devorigins;
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if(allowedOrigins.includes(origin))
+        {
+          console.log(origin, allowedOrigins)
+          callback(null, true);
+        }
+        else
+        {
+          callback(new Error('Not allowed by Cors'));
+        }
+    },
     methods: ["POST", "GET", "PUT", "DELETE"],
     credentials: true,
   })
